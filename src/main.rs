@@ -29,12 +29,6 @@ impl Vertex {
     }
 }
 
-const VERTICES: &[Vertex] = &[
-    Vertex { position: [0.0, 0.5, 0.0], color: [1.0, 0.0, 0.0] },
-    Vertex { position: [-0.5, -0.5, 0.0], color: [0.0, 1.0, 0.0] },
-    Vertex { position: [0.5, -0.5, 0.0], color: [0.0, 0.0, 1.0] },
-];
-
 struct State {
     surface: wgpu::Surface<'static>,
     device: wgpu::Device,
@@ -144,7 +138,7 @@ impl State {
                 compilation_options: wgpu::PipelineCompilationOptions::default(),
             }),
             primitive: wgpu::PrimitiveState {
-                topology: wgpu::PrimitiveTopology::TriangleList,
+                topology: wgpu::PrimitiveTopology::TriangleStrip,
                 strip_index_format: None,
                 front_face: wgpu::FrontFace::Ccw,
                 cull_mode: Some(wgpu::Face::Back),
@@ -165,13 +159,48 @@ impl State {
             cache: None, // 6.
         });
 
+        const WHITE: [f32; 3] = [0.925, 0.925, 0.800];
+        const GREEN: [f32; 3] = [0.450, 0.667, 0.290];
+
+        let mut vertices: Vec<Vertex> = vec![];
+
+        for i in 0..64 {
+            let color: [f32; 3] = {
+                if i % 2 == 0 {
+                    if (i / 8) % 2 == 0 {
+                        WHITE
+                    } else {
+                        GREEN
+                    }
+                } else {
+                    if (i / 8) % 2 == 0 {
+                        GREEN
+                    } else {
+                        WHITE
+                    }
+                }
+            };
+            
+            let x_offset = ((i % 8) as f32) * 0.25;
+            let y_offset = ((i / 8) as f32) * 0.25;
+
+            let mut new_vertices: Vec<Vertex> = vec![
+                Vertex { position: [-1.0 + x_offset, 1.0 - y_offset, 0.0], color },
+                Vertex { position: [-1.0 + x_offset, 0.75 - y_offset, 0.0], color },
+                Vertex { position: [-0.75 + x_offset, 1.0 - y_offset, 0.0], color },
+                Vertex { position: [-0.75 + x_offset, 0.75 - y_offset, 0.0], color },
+            ];
+
+            vertices.append(new_vertices.as_mut());
+        }
+
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Vertex Buffer"),
-            contents: bytemuck::cast_slice(VERTICES),
+            contents: bytemuck::cast_slice(&vertices),
             usage: wgpu::BufferUsages::VERTEX
         });
 
-        let num_vertices = VERTICES.len() as u32;
+        let num_vertices = vertices.len() as u32;
 
         Ok(Self {
             surface,
@@ -286,19 +315,13 @@ impl State {
 }
 
 struct App {
-    #[cfg(target_arch = "wasm32")]
-    proxy: Option<winit::event_loop::EventLoopProxy<State>>,
     state: Option<State>,
 }
 
 impl App {
-    fn new(#[cfg(target_arch = "wasm32")] event_loop: &EventLoop<State>) -> Self {
-        #[cfg(target_arch = "wasm32")]
-        let proxy = Some(event_loop.create_proxy());
+    fn new() -> Self {
         Self {
             state: None,
-            #[cfg(target_arch = "wasm32")]
-            proxy,
         }
     }
 }
@@ -306,21 +329,7 @@ impl App {
 impl ApplicationHandler<State> for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         #[allow(unused_mut)]
-        let mut window_attributes = Window::default_attributes();
-
-        #[cfg(target_arch = "wasm32")]
-        {
-            use wasm_bindgen::JsCast;
-            use winit::platform::web::WindowAttributesExtWebSys;
-
-            const CANVAS_ID: &str = "canvas";
-
-            let window = wgpu::web_sys::window().unwrap_throw();
-            let document = window.document().unwrap_throw();
-            let canvas = document.get_element_by_id(CANVAS_ID).unwrap_throw();
-            let html_canvas_element = canvas.unchecked_into();
-            window_attributes = window_attributes.with_canvas(Some(html_canvas_element));
-        }
+        let mut window_attributes = Window::default_attributes().with_inner_size(winit::dpi::LogicalSize::new(600, 600)).with_resizable(false);
 
         let window = Arc::new(event_loop.create_window(window_attributes).unwrap());
 
@@ -330,33 +339,10 @@ impl ApplicationHandler<State> for App {
             // await the
             self.state = Some(pollster::block_on(State::new(window)).unwrap());
         }
-
-        #[cfg(target_arch = "wasm32")]
-        {
-            if let Some(proxy) = self.proxy.take() {
-                wasm_bindgen_futures::spawn_local(async move {
-                    assert!(proxy
-                        .send_event(
-                            State::new(window)
-                                .await
-                                .expect("Unable to create canvas!!!")
-                        )
-                        .is_ok())
-                });
-            }
-        }
     }
 
     #[allow(unused_mut)]
     fn user_event(&mut self, _event_loop: &ActiveEventLoop, mut event: State) {
-        #[cfg(target_arch = "wasm32")]
-        {
-            event.window.request_redraw();
-            event.resize(
-                event.window.inner_size().width,
-                event.window.inner_size().height,
-            );
-        }
         self.state = Some(event);
     }
 
@@ -409,10 +395,6 @@ fn run() -> anyhow::Result<()> {
     {
         env_logger::init();
     }
-    #[cfg(target_arch = "wasm32")]
-    {
-        console_log::init_with_level(log::Level::Info).unwrap_throw();
-    }
 
     let event_loop = EventLoop::with_user_event().build()?;
     #[cfg(not(target_arch = "wasm32"))]
@@ -420,20 +402,6 @@ fn run() -> anyhow::Result<()> {
         let mut app = App::new();
         event_loop.run_app(&mut app)?;
     }
-    #[cfg(target_arch = "wasm32")]
-    {
-        let app = App::new(&event_loop);
-        event_loop.spawn_app(app);
-    }
-
-    Ok(())
-}
-
-#[cfg(target_arch = "wasm32")]
-#[wasm_bindgen(start)]
-fn run_web() -> Result<(), wasm_bindgen::JsValue> {
-    console_error_panic_hook::set_once();
-    run().unwrap_throw();
 
     Ok(())
 }
