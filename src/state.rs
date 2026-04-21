@@ -7,7 +7,7 @@ use winit::{
     window::Window,
 };
 
-use crate::chessboard::{Chessboard};
+use crate::{chessboard::{Chessboard}, piece::Piece};
 
 pub struct State {
     pub surface: wgpu::Surface<'static>,
@@ -15,6 +15,8 @@ pub struct State {
     pub queue: wgpu::Queue,
     pub config: Arc<wgpu::SurfaceConfiguration>,
     pub window: Arc<Window>,
+    chessboard: Chessboard,
+    piece: Piece
 }
 
 impl State {
@@ -77,12 +79,36 @@ impl State {
         let device = Arc::new(device);
         let config = Arc::new(config);
 
+        let chessboard = Chessboard::new(Arc::clone(&device), Arc::clone(&config));
+        let piece = Piece::new(Arc::clone(&device), Arc::clone(&config));
+
+        queue.write_texture(
+            // Tells wgpu where to copy the pixel data
+            wgpu::TexelCopyTextureInfo {
+                texture: &piece.diffuse_texture(),
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
+            // The actual pixel data
+            &piece.diffuse_rgba(),
+            // The layout of the texture
+            wgpu::TexelCopyBufferLayout {
+                offset: 0,
+                bytes_per_row: Some(4 * piece.dimensions().0),
+                rows_per_image: Some(piece.dimensions().1),
+            },
+            piece.texture_size(),
+        );
+
         Ok(Self {
             surface,
             device,
             queue,
             config,
             window,
+            chessboard,
+            piece
         })
     }
 
@@ -116,8 +142,6 @@ impl State {
         let view = output
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
-
-        let chessboard = Chessboard::new(Arc::clone(&self.device), Arc::clone(&self.config));
 
         let mut encoder = self
             .device
@@ -153,9 +177,14 @@ impl State {
                 timestamp_writes: None
             });
 
-            render_pass.set_pipeline(&chessboard.render_pipeline());
-            render_pass.set_vertex_buffer(0, chessboard.vertex_buffer().slice(..));
-            render_pass.draw(0..chessboard.num_vertices(), 0..1);
+            render_pass.set_pipeline(&self.chessboard.render_pipeline());
+            render_pass.set_vertex_buffer(0, self.chessboard.vertex_buffer().slice(..));
+            render_pass.draw(0..self.chessboard.num_vertices(), 0..1);
+
+            render_pass.set_pipeline(&self.piece.render_pipeline());
+            render_pass.set_bind_group(0, &self.piece.diffuse_bind_group(), &[]);
+            render_pass.set_vertex_buffer(0, self.piece.vertex_buffer().slice(..));
+            render_pass.draw(0..self.piece.num_vertices(), 0..1);
         }
 
         self.queue.submit(iter::once(encoder.finish()));

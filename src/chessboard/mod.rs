@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
-use crate::vertex::Vertex;
+mod vertex;
+use vertex::Vertex;
 
 use wgpu::util::DeviceExt;
 
