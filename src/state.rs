@@ -7,7 +7,7 @@ use winit::{
     window::Window,
 };
 
-use crate::chessboard::{self, Chessboard};
+use crate::chessboard::{Chessboard};
 
 pub struct State {
     pub surface: wgpu::Surface<'static>,
