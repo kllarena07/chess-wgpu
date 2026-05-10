@@ -4,6 +4,7 @@ use vertex::Vertex;
 use wgpu::util::DeviceExt;
 use std::sync::Arc;
 
+#[derive(Debug)]
 pub enum SquareState {
     WhitePawn,
     WhiteCastle,
@@ -38,7 +39,9 @@ impl SquareState {
     }
 }
 
+#[derive(Debug)]
 pub struct Piece {
+    device: Arc<wgpu::Device>,
     render_pipeline: wgpu::RenderPipeline,
     diffuse_bind_group: wgpu::BindGroup,
     vertex_buffer: wgpu::Buffer,
@@ -46,12 +49,15 @@ pub struct Piece {
     diffuse_texture: wgpu::Texture,
     diffuse_rgba: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
     texture_size: wgpu::Extent3d,
-    dimensions: (u32, u32)
+    dimensions: (u32, u32),
+    pub position: (f32, f32),
+    pub piece_type: SquareState
 }
 
 impl Piece {
-    pub fn new(device: Arc<wgpu::Device>, config: Arc<wgpu::SurfaceConfiguration>, data: &[u8], x: f32, y: f32) -> Self {
-        let diffuse_image = image::load_from_memory(data).unwrap();
+    pub fn new(device: Arc<wgpu::Device>, config: Arc<wgpu::SurfaceConfiguration>, piece_type: SquareState, x: f32, y: f32) -> Self {
+        let position: (f32, f32) = (x, y);
+        let diffuse_image = image::load_from_memory(piece_type.get_bytes()).unwrap();
         let diffuse_rgba = diffuse_image.to_rgba8();
 
         use image::GenericImageView;
@@ -215,6 +221,7 @@ impl Piece {
         });
 
         Self {
+            device,
             render_pipeline,
             diffuse_bind_group,
             vertex_buffer,
@@ -222,7 +229,9 @@ impl Piece {
             diffuse_rgba,
             texture_size,
             num_vertices,
-            dimensions
+            dimensions,
+            position,
+            piece_type
         }
     }
 
@@ -256,6 +265,25 @@ impl Piece {
 
     pub fn dimensions(&self) -> (u32, u32) {
         self.dimensions
+    }
+    
+    pub fn move_piece(&mut self, position: (f32, f32)) {
+        let (x, y) = position;
+        let vertices: [Vertex; 4] = [
+            Vertex { position: [-1.0 + x, 1.0 - y, 0.0], tex_coords: [0.0, 0.0] },
+            Vertex { position: [-1.0 + x, 0.75 - y, 0.0], tex_coords: [0.0, 1.0] },
+            Vertex { position: [-0.75 + x, 1.0 - y, 0.0], tex_coords: [1.0, 0.0] },
+            Vertex { position: [-0.75 + x, 0.75 - y, 0.0], tex_coords: [1.0, 1.0] },
+        ];
+
+        let vertex_buffer = self.device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Vertex Buffer"),
+            contents: bytemuck::cast_slice(&vertices),
+            usage: wgpu::BufferUsages::VERTEX
+        });
+
+        self.vertex_buffer = vertex_buffer;
+        self.position = position;
     }
 }
 

@@ -15,7 +15,7 @@ pub struct State {
     pub queue: wgpu::Queue,
     pub config: Arc<wgpu::SurfaceConfiguration>,
     pub window: Arc<Window>,
-    chessboard: Chessboard,
+    pub chessboard: Chessboard,
 }
 
 impl State {

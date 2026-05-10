@@ -1,22 +1,22 @@
-use crate::state::State;
+use crate::{state::State};
 
 use std::{sync::Arc};
 use winit::{
-    application::ApplicationHandler,
-    event::*,
-    event_loop::{ActiveEventLoop},
-    keyboard::{PhysicalKey},
-    window::Window,
+    application::ApplicationHandler, dpi::PhysicalPosition, event::*, event_loop::ActiveEventLoop, keyboard::PhysicalKey, window::Window
 };
 
 pub struct App {
     pub state: Option<State>,
+    mouse_position: Option<PhysicalPosition<f64>>,
+    grabbed_piece: Option<usize>
 }
 
 impl App {
     pub fn new() -> Self {
         Self {
             state: None,
+            mouse_position: None,
+            grabbed_piece: None,
         }
     }
 }
@@ -60,9 +60,58 @@ impl ApplicationHandler<State> for App {
                     }
                 }
             }
+            WindowEvent::CursorMoved { device_id: _, position } => {
+                self.mouse_position = Some(position);
+
+
+                if let Some(grabbed_piece) = self.grabbed_piece {
+                    if let Some(s) = self.state.as_mut() {
+                        let mouse_pixel = self.mouse_position.unwrap();
+                        let (mx, my): (f32, f32) = mouse_pixel.into();
+
+                        let piece_space_x = ((mx - 35.0) / 600.0) * 2.0;
+                        let piece_space_y = ((my - 35.0) / 600.0) * 2.0;
+
+                        s.chessboard.move_piece(grabbed_piece, (piece_space_x, piece_space_y));
+                        println!("Tried moving {:?}", grabbed_piece);
+                    }
+                }
+            },
             WindowEvent::MouseInput { state, button, .. } => match (button, state.is_pressed()) {
-                (MouseButton::Left, true) => {}
-                (MouseButton::Left, false) => {}
+                (MouseButton::Left, true) => {
+                    if let Some(s) = &self.state {
+                        let mouse_pixel = self.mouse_position.unwrap();
+                        let (mx, my): (f32, f32) = mouse_pixel.into();
+                        
+                        let piece_space_x = (mx / 600.0) * 2.0;
+                        let piece_space_y = (my / 600.0) * 2.0;
+                        
+                        let board_state = s.chessboard.get_board_state();
+                        for (i, piece) in board_state.iter().enumerate() {
+                            if let Some(p) = &piece {
+                                let (px, py) = p.position;
+                                if px <= piece_space_x && piece_space_x <= px + 0.25 && py <= piece_space_y && piece_space_y <= py + 0.25 {
+                                    self.grabbed_piece = Some(i);
+                                    println!("Grabbed {:?}", p.piece_type);
+                                }
+                            }
+                        }
+                    };
+                }
+                (MouseButton::Left, false) => {
+                    if let Some(grabbed_piece) = self.grabbed_piece {
+                        if let Some(s) = self.state.as_mut() {
+                            let mouse_pixel = self.mouse_position.unwrap();
+                            let (mx, my): (f32, f32) = mouse_pixel.into();
+
+                            let piece_space_x = (mx - 35.0 / 600.0) * 2.0;
+                            let piece_space_y = (my - 35.0 / 600.0) * 2.0;
+
+                            s.chessboard.move_piece(grabbed_piece, (piece_space_x, piece_space_y));
+                            println!("Tried moving {:?}", grabbed_piece);
+                        }
+                    }
+                }
                 _ => {}
             },
             WindowEvent::KeyboardInput {

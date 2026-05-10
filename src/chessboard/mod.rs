@@ -103,42 +103,42 @@ impl Chessboard {
         });
 
         let board_state: [Option<Piece>; 64] = [
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackCastle.get_bytes(), 0.0, 0.0)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackKnight.get_bytes(), 0.25, 0.0)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackBishop.get_bytes(), 0.5, 0.0)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackQueen.get_bytes(), 0.75, 0.0)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackKing.get_bytes(), 1.0, 0.0)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackBishop.get_bytes(), 1.25, 0.0)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackKnight.get_bytes(), 1.5, 0.0)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackCastle.get_bytes(), 1.75, 0.0)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn.get_bytes(), 0.0, 0.25)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn.get_bytes(), 0.25, 0.25)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn.get_bytes(), 0.5, 0.25)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn.get_bytes(), 0.75, 0.25)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn.get_bytes(), 1.0, 0.25)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn.get_bytes(), 1.25, 0.25)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn.get_bytes(), 1.5, 0.25)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn.get_bytes(), 1.75, 0.25)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackCastle, 0.0, 0.0)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackKnight, 0.25, 0.0)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackBishop, 0.5, 0.0)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackQueen, 0.75, 0.0)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackKing, 1.0, 0.0)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackBishop, 1.25, 0.0)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackKnight, 1.5, 0.0)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackCastle, 1.75, 0.0)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn, 0.0, 0.25)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn, 0.25, 0.25)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn, 0.5, 0.25)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn, 0.75, 0.25)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn, 1.0, 0.25)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn, 1.25, 0.25)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn, 1.5, 0.25)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn, 1.75, 0.25)),
             None, None, None, None, None, None, None, None,
             None, None, None, None, None, None, None, None,
             None, None, None, None, None, None, None, None,
             None, None, None, None, None, None, None, None,
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn.get_bytes(), 0.0, 1.5)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn.get_bytes(), 0.25, 1.5)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn.get_bytes(), 0.5, 1.5)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn.get_bytes(), 0.75, 1.5)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn.get_bytes(), 1.0, 1.5)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn.get_bytes(), 1.25, 1.5)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn.get_bytes(), 1.5, 1.5)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn.get_bytes(), 1.75, 1.5)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteCastle.get_bytes(), 0.0, 1.75)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteKnight.get_bytes(), 0.25, 1.75)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteBishop.get_bytes(), 0.5, 1.75)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteQueen.get_bytes(), 0.75, 1.75)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteKing.get_bytes(), 1.0, 1.75)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteBishop.get_bytes(), 1.25, 1.75)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteKnight.get_bytes(), 1.5, 1.75)),
-            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteCastle.get_bytes(), 1.75, 1.75)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn, 0.0, 1.5)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn, 0.25, 1.5)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn, 0.5, 1.5)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn, 0.75, 1.5)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn, 1.0, 1.5)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn, 1.25, 1.5)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn, 1.5, 1.5)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn, 1.75, 1.5)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteCastle, 0.0, 1.75)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteKnight, 0.25, 1.75)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteBishop, 0.5, 1.75)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteQueen, 0.75, 1.75)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteKing, 1.0, 1.75)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteBishop, 1.25, 1.75)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteKnight, 1.5, 1.75)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteCastle, 1.75, 1.75)),
         ];
 
         Self {
@@ -159,6 +159,13 @@ impl Chessboard {
     }
     pub fn num_vertices(&self) -> u32 {
         self.num_vertices
+    }
+    pub fn move_piece(&mut self, piece: usize, position: (f32, f32)) {
+        println!("moving: {:?}", self.board_state[piece]);
+        if let Some(piece) = self.board_state[piece].as_mut() {
+            piece.move_piece(position);
+            println!("Moved {:?} to {:?}", piece.piece_type, position);
+        }
     }
 }
 
