@@ -5,10 +5,13 @@ use vertex::Vertex;
 
 use wgpu::util::DeviceExt;
 
+use crate::piece::{Piece, SquareState};
+
 pub struct Chessboard {
     render_pipeline: wgpu::RenderPipeline,
     vertex_buffer: wgpu::Buffer,
-    num_vertices: u32
+    num_vertices: u32,
+    board_state: [Option<Piece>; 64]
 }
 
 impl Chessboard {
@@ -111,11 +114,54 @@ impl Chessboard {
             usage: wgpu::BufferUsages::VERTEX
         });
 
+        let board_state: [Option<Piece>; 64] = [
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackCastle.get_bytes(), 0.0, 0.0)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackKnight.get_bytes(), 0.25, 0.0)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackBishop.get_bytes(), 0.5, 0.0)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackQueen.get_bytes(), 0.75, 0.0)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackKing.get_bytes(), 1.0, 0.0)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackBishop.get_bytes(), 1.25, 0.0)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackKnight.get_bytes(), 1.5, 0.0)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackCastle.get_bytes(), 1.75, 0.0)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn.get_bytes(), 0.0, 0.25)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn.get_bytes(), 0.25, 0.25)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn.get_bytes(), 0.5, 0.25)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn.get_bytes(), 0.75, 0.25)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn.get_bytes(), 1.0, 0.25)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn.get_bytes(), 1.25, 0.25)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn.get_bytes(), 1.5, 0.25)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::BlackPawn.get_bytes(), 1.75, 0.25)),
+            None, None, None, None, None, None, None, None,
+            None, None, None, None, None, None, None, None,
+            None, None, None, None, None, None, None, None,
+            None, None, None, None, None, None, None, None,
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn.get_bytes(), 0.0, 1.5)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn.get_bytes(), 0.25, 1.5)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn.get_bytes(), 0.5, 1.5)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn.get_bytes(), 0.75, 1.5)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn.get_bytes(), 1.0, 1.5)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn.get_bytes(), 1.25, 1.5)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn.get_bytes(), 1.5, 1.5)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhitePawn.get_bytes(), 1.75, 1.5)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteCastle.get_bytes(), 0.0, 1.75)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteKnight.get_bytes(), 0.25, 1.75)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteBishop.get_bytes(), 0.5, 1.75)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteQueen.get_bytes(), 0.75, 1.75)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteKing.get_bytes(), 1.0, 1.75)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteBishop.get_bytes(), 1.25, 1.75)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteKnight.get_bytes(), 1.5, 1.75)),
+            Some(Piece::new(Arc::clone(&device), Arc::clone(&config), SquareState::WhiteCastle.get_bytes(), 1.75, 1.75)),
+        ];
+
         Self {
             render_pipeline,
             vertex_buffer,
-            num_vertices
+            num_vertices,
+            board_state
         }
+    }
+    pub fn get_board_state(&self) -> &[Option<Piece>] {
+        &self.board_state
     }
     pub fn render_pipeline(&self) -> wgpu::RenderPipeline {
         self.render_pipeline.clone()

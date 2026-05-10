@@ -4,6 +4,40 @@ use vertex::Vertex;
 use wgpu::util::DeviceExt;
 use std::sync::Arc;
 
+pub enum SquareState {
+    WhitePawn,
+    WhiteCastle,
+    WhiteKnight,
+    WhiteBishop,
+    WhiteKing,
+    WhiteQueen,
+    BlackPawn,
+    BlackCastle,
+    BlackKnight,
+    BlackBishop,
+    BlackKing,
+    BlackQueen,
+}
+
+impl SquareState {
+    pub fn get_bytes(&self) -> &[u8] {
+        match self {
+            SquareState::WhitePawn => include_bytes!("../../pieces/white/pawn.png"),
+            SquareState::WhiteCastle => include_bytes!("../../pieces/white/castle.png"),
+            SquareState::WhiteKnight => include_bytes!("../../pieces/white/knight.png"),
+            SquareState::WhiteBishop => include_bytes!("../../pieces/white/bishop.png"),
+            SquareState::WhiteKing => include_bytes!("../../pieces/white/king.png"),
+            SquareState::WhiteQueen => include_bytes!("../../pieces/white/queen.png"),
+            SquareState::BlackPawn => include_bytes!("../../pieces/black/pawn.png"),
+            SquareState::BlackCastle => include_bytes!("../../pieces/black/castle.png"),
+            SquareState::BlackKnight => include_bytes!("../../pieces/black/knight.png"),
+            SquareState::BlackBishop => include_bytes!("../../pieces/black/bishop.png"),
+            SquareState::BlackKing => include_bytes!("../../pieces/black/king.png"),
+            SquareState::BlackQueen => include_bytes!("../../pieces/black/queen.png")
+        }
+    }
+}
+
 pub struct Piece {
     render_pipeline: wgpu::RenderPipeline,
     diffuse_bind_group: wgpu::BindGroup,
@@ -33,7 +67,7 @@ impl Piece {
         let diffuse_texture = device.create_texture(
             &wgpu::TextureDescriptor {
                 size: texture_size,
-                mip_level_count: 1, // We'll talk about this a little later
+                mip_level_count: 1,
                 sample_count: 1,
                 dimension: wgpu::TextureDimension::D2,
                 // Most images are stored using sRGB, so we need to reflect that here.
