@@ -199,10 +199,7 @@ impl State {
     }
 
     pub fn handle_key(&mut self, event_loop: &ActiveEventLoop, code: KeyCode, is_pressed: bool) {
-        match (code, is_pressed) {
-            (KeyCode::Escape, true) => event_loop.exit(),
-            _ => {}
-        }
+        if let (KeyCode::Escape, true) = (code, is_pressed) { event_loop.exit(); }
     }
 }
 

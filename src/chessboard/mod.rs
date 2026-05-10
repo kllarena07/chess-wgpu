@@ -77,21 +77,9 @@ impl Chessboard {
         let mut vertices: Vec<Vertex> = vec![];
 
         for i in 0..64 {
-            let color: [f32; 3] = {
-                if i % 2 == 0 {
-                    if (i / 8) % 2 == 0 {
-                        WHITE
-                    } else {
-                        GREEN
-                    }
-                } else {
-                    if (i / 8) % 2 == 0 {
-                        GREEN
-                    } else {
-                        WHITE
-                    }
-                }
-            };
+            let col = i % 8;
+            let row = i / 8;
+            let color = if (row + col) % 2 == 0 { WHITE } else { GREEN };
 
             let x_offset = ((i % 8) as f32) * 0.25;
             let y_offset = ((i / 8) as f32) * 0.25;
