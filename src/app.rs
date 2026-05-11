@@ -63,18 +63,15 @@ impl ApplicationHandler<State> for App {
             WindowEvent::CursorMoved { device_id: _, position } => {
                 self.mouse_position = Some(position);
 
+                if let (Some(grabbed_piece), Some(s)) = (self.grabbed_piece, self.state.as_mut()) {
+                    let mouse_pixel = self.mouse_position.unwrap();
+                    let (mx, my): (f32, f32) = mouse_pixel.into();
 
-                if let Some(grabbed_piece) = self.grabbed_piece {
-                    if let Some(s) = self.state.as_mut() {
-                        let mouse_pixel = self.mouse_position.unwrap();
-                        let (mx, my): (f32, f32) = mouse_pixel.into();
+                    let piece_space_x = ((mx - 35.0) / 600.0) * 2.0;
+                    let piece_space_y = ((my - 35.0) / 600.0) * 2.0;
 
-                        let piece_space_x = ((mx - 35.0) / 600.0) * 2.0;
-                        let piece_space_y = ((my - 35.0) / 600.0) * 2.0;
-
-                        s.chessboard.move_piece(grabbed_piece, (piece_space_x, piece_space_y));
-                        println!("Tried moving {:?}", grabbed_piece);
-                    }
+                    s.chessboard.move_piece(grabbed_piece, (piece_space_x, piece_space_y));
+                    println!("Tried moving {:?}", grabbed_piece);
                 }
             },
             WindowEvent::MouseInput { state, button, .. } => match (button, state.is_pressed()) {
@@ -99,18 +96,17 @@ impl ApplicationHandler<State> for App {
                     };
                 }
                 (MouseButton::Left, false) => {
-                    if let Some(grabbed_piece) = self.grabbed_piece {
-                        if let Some(s) = self.state.as_mut() {
-                            let mouse_pixel = self.mouse_position.unwrap();
-                            let (mx, my): (f32, f32) = mouse_pixel.into();
+                    if let (Some(grabbed_piece), Some(s)) = (self.grabbed_piece, self.state.as_mut()) {
+                        let mouse_pixel = self.mouse_position.unwrap();
+                        let (mx, my): (f32, f32) = mouse_pixel.into();
 
-                            let piece_space_x = (mx - 35.0 / 600.0) * 2.0;
-                            let piece_space_y = (my - 35.0 / 600.0) * 2.0;
+                        let piece_space_x = ((mx - 35.0) / 600.0) * 2.0;
+                        let piece_space_y = ((my - 35.0) / 600.0) * 2.0;
 
-                            s.chessboard.move_piece(grabbed_piece, (piece_space_x, piece_space_y));
-                            println!("Tried moving {:?}", grabbed_piece);
-                        }
+                        s.chessboard.move_piece(grabbed_piece, (piece_space_x, piece_space_y));
+                        println!("Tried moving {:?}", grabbed_piece);
                     }
+                    self.grabbed_piece = None;
                 }
                 _ => {}
             },
